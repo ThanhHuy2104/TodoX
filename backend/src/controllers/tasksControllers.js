@@ -3,8 +3,9 @@ import Task from '../models/Task.js'
 export const getAllTasks = async (req, res) => {
     try {
         const tasks = await Task.find().sort({createdAt: 'desc'});
-
-        res.status(200).json(tasks);
+        const activeCount = await Task.countDocuments({status: 'active'});
+        const completedCount = await Task.countDocuments({status: 'complete'});
+        res.status(200).json({tasks, activeCount, completedCount});
     } catch (error) {
         console.error("Lỗi khi gọi getAllTasks", error);
         res.status(500).json({message: "Lỗi hệ thống"})

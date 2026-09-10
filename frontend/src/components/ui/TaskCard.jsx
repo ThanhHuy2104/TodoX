@@ -9,9 +9,17 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
+import axios from "axios";
 
 const TaskCard = ({ task, index }) => {
   let isEditting = false;
+  const handleDeleteTask = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/api/tasks/${task._id}`);
+    } catch (error) {
+      console.log("Error deleting task:", error);
+    }
+  };
   return (
     <Card
       className={cn(
@@ -20,7 +28,6 @@ const TaskCard = ({ task, index }) => {
       )}
     >
       <div className="flex items-center gap-4">
-        <p>{task.status}</p>
         <Button
           variant="ghost"
           size="icon"
@@ -86,7 +93,7 @@ const TaskCard = ({ task, index }) => {
           <Button
             variant="ghost"
             size="icon"
-            className="shrink-0 transition-colors size-8 text-muted-foreground hover:text-destructive"
+            className="shrink-0 transition-colors size-8 text-muted-foreground hover:text-destructive" onClick={handleDeleteTask}
           >
             <Trash2 className="size-4" />
           </Button>

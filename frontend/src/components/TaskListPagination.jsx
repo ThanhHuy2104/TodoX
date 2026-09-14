@@ -58,7 +58,7 @@ const TaskListPagination = ({
                   <PaginationLink
                     isActive={p === page}
                     onClick={() => {
-                      if (p !== page) handlePageChange;
+                      if (p !== page) handlePageChange(p);
                     }}
                     className="cursor-pointer"
                   >

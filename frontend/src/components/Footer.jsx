@@ -10,7 +10,7 @@ const Footer = ({completedTasksCount = 0, activeTasksCount = 0}) => {
               <>
                 Bạn đã hoàn thành {completedTasksCount} việc
                 {
-                  activeTasksCount > 0 && `còn ${activeTasksCount} việc nữa thôi!!!`
+                  activeTasksCount > 0 && ` còn ${activeTasksCount} việc nữa thôi!!!`
                 }
               </>
             )

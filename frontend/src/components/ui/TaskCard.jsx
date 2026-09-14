@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "./card";
 import { Button, Input } from "@base-ui/react";
 import { cn } from "@/lib/utils";
@@ -9,17 +9,62 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
+import api from "@/lib/api";
+import {toast} from 'sonner'
 import axios from "axios";
 
-const TaskCard = ({ task, index }) => {
-  let isEditting = false;
-  const handleDeleteTask = async () => {
+const TaskCard = ({ task, index, handleTaskChanged }) => {
+  const [isEditting, setIsEditting] = useState(false);
+  const [updateTaskTitle, setUpdateTaskTitle] = useState(task.title || "")
+  const deleteTask =  async (taskId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/tasks/${task._id}`);
+      await api.delete(`/tasks/${taskId}`)
+      toast.success('Nhiệm vụ đã xóa!!!')
+      handleTaskChanged();
     } catch (error) {
-      console.log("Error deleting task:", error);
+      console.log('Lỗi xảy ra khi xóa task');
+      toast.error('Xóa nhiệm vụ thất bại!!!')
     }
-  };
+  }
+
+  const updateTask = async () => {
+    try {
+      setIsEditting(false);
+      await api.put(`/tasks/${task._id}`, {title: updateTaskTitle});
+      toast.success('Nhiệm vụ được thay đổi thành công!!!')
+      handleTaskChanged()
+    } catch (error) {
+      console.log('Lỗi xảy ra khi đổi task');
+      toast.error('Đổi nhiệm vụ thất bại!!!')
+    }
+  }
+  const handleKeyPress = (event) => {
+    if(event.key === 'Enter') {
+      updateTask();
+    }
+  }
+
+  const toggleTaskCompleteButton = async () => {
+    try {
+      if(task.status === 'active') {
+        await api.put(`/tasks/${task._id}`, {
+          status: 'complete',
+          completedAt: new Date().toISOString()
+        });
+        toast.success(`${task.title} đã hoàn thành!!!`)
+      } else {
+        await api.put(`/tasks/${task._id}`, {
+          status: 'active',
+          completedAt: null
+        });
+        toast.success(`${task.title} đã đổi sang chưa hoàn thành!!!`)
+      }
+      handleTaskChanged()
+    } catch (error) {
+      console.log('Lỗi xảy ra khi đổi task');
+      toast.error('Đổi nhiệm vụ thất bại!!!')
+    }
+  }
   return (
     <Card
       className={cn(
@@ -29,6 +74,7 @@ const TaskCard = ({ task, index }) => {
     >
       <div className="flex items-center gap-4">
         <Button
+          onClick={toggleTaskCompleteButton}
           variant="ghost"
           size="icon"
           className={cn(
@@ -39,9 +85,9 @@ const TaskCard = ({ task, index }) => {
           )}
         >
           {task.status === "complete" ? (
-            <CheckCircle2 className="size-5" />
+            <CheckCircle2 className="size-5 animate-in fade-in zoom-in duration-200" />
           ) : (
-            <Circle className="size-5" />
+            <Circle className="size-5 animate-in fade-in zoom-in duration-200" />
           )}
         </Button>
 
@@ -51,6 +97,10 @@ const TaskCard = ({ task, index }) => {
               placeholder="Cần phải làm gì"
               className="flex-1 h-12 text-base border-border/50 focus:border-primary/50 focus:ring-primary/50"
               type="text"
+              value={updateTaskTitle}
+              onChange={(event) => setUpdateTaskTitle(event.target.value)}
+              onKeyPress={handleKeyPress}
+              onBlur={() => {setIsEditting(false); setUpdateTaskTitle(task.title || ''); updateTask()}}
             />
           ) : (
             <p
@@ -86,6 +136,8 @@ const TaskCard = ({ task, index }) => {
             variant="ghost"
             size="icon"
             className="shrink-0 transition-colors size-8 text-muted-foreground hover:text-info"
+            onClick={() => {setIsEditting(true); setUpdateTaskTitle(task.title || '')}}
+
           >
             <SquarePen className="size-4" />
           </Button>
@@ -93,9 +145,9 @@ const TaskCard = ({ task, index }) => {
           <Button
             variant="ghost"
             size="icon"
-            className="shrink-0 transition-colors size-8 text-muted-foreground hover:text-destructive" onClick={handleDeleteTask}
+            className="shrink-0 transition-colors size-8 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 className="size-4" />
+            <Trash2 className="size-4" onClick={() => deleteTask(task._id)}/>
           </Button>
         </div>
       </div>

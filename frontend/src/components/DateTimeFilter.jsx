@@ -1,9 +1,42 @@
-import React from 'react'
+import React from "react";
 
-const DateTimeFilter = () => {
+("use client");
+
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+
+import { options } from "@/lib/data";
+
+const DateTimeFilter = ({ dateQuery, setDateQuery }) => {
   return (
-    <div>DateTimeFilter</div>
-  )
-}
+    <Combobox
+      items={options}
+      value={options.find((option) => option.value === dateQuery)}
+      onValueChange={(option) => setDateQuery(option?.value)}
+      itemToStringLabel={(item) => item.label}
+    >
+      <ComboboxInput placeholder="" />
 
-export default DateTimeFilter
+      <ComboboxContent>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem
+              key={item.value}
+              value={item}
+            >
+              {item.label}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+};
+
+export default DateTimeFilter;
